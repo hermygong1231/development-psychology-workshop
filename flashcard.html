@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>闪卡 - 成长心理学概念工坊</title>
+  <meta name="description" content="用闪卡复习成长心理学核心概念">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/minimal.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🧠 成长心理学</a>
+      <div class="nav-links">
+        <a href="learn.html" class="nav-link">学习</a>
+        <a href="flashcard.html" class="nav-link active">闪卡</a>
+        <a href="roots.html" class="nav-link">索引</a>
+        <a href="progress.html" class="nav-link">进度</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="flashcard-progress">
+      <span id="flashcardProgress">1 / 30</span>
+      <span id="masteredCount">已掌握: 0</span>
+    </div>
+
+    <div class="flashcard" id="flashcard" onclick="flipCard()">
+      <div class="flashcard-inner" id="flashcardInner">
+        <div class="flashcard-front">
+          <div class="flashcard-origin" id="frontOrigin">-</div>
+          <div class="flashcard-root" id="frontRoot">-</div>
+          <div class="flashcard-meaning" id="frontMeaning">-</div>
+          <div class="flip-hint">点击翻转</div>
+        </div>
+        <div class="flashcard-back">
+          <div class="flashcard-root" id="backRoot">-</div>
+          <div class="flashcard-description" id="backDescription">-</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flashcard-controls">
+      <button class="btn btn-secondary" onclick="prevCard()">←</button>
+      <button class="btn btn-primary" id="masterBtn" onclick="toggleMastered()">✓ 标记已掌握</button>
+      <button class="btn btn-secondary" onclick="nextCard()">→</button>
+    </div>
+
+    <div class="keyboard-hint">
+      键盘: ← → 切换 | 空格翻转
+    </div>
+  </main>
+
+  <script src="js/wordData.js"></script>
+  <script src="js/siteConfig.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    let currentIndex = 0;
+    let isFlipped = false;
+
+    function loadCard(index) {
+      if (index < 0) index = WordRoots.length - 1;
+      if (index >= WordRoots.length) index = 0;
+      currentIndex = index;
+      
+      const root = WordRoots[index];
+      
+      document.getElementById('frontOrigin').textContent = root.origin;
+      document.getElementById('frontRoot').textContent = root.root;
+      document.getElementById('frontMeaning').textContent = root.meaning;
+      document.getElementById('backRoot').textContent = root.root;
+      document.getElementById('backDescription').textContent = root.description;
+      
+      document.getElementById('flashcardProgress').textContent = `${index + 1} / ${WordRoots.length}`;
+      
+      const progress = StorageManager.getProgress();
+      const masteredCount = progress.masteredRoots.length;
+      document.getElementById('masteredCount').textContent = `已掌握: ${masteredCount}`;
+      
+      const masterBtn = document.getElementById('masterBtn');
+      if (progress.masteredRoots.includes(root.id)) {
+        masterBtn.textContent = '✓ 已掌握';
+        masterBtn.classList.add('mastered');
+      } else {
+        masterBtn.textContent = '✓ 标记已掌握';
+        masterBtn.classList.remove('mastered');
+      }
+      
+      // Reset flip state
+      isFlipped = false;
+      document.getElementById('flashcardInner').classList.remove('flipped');
+      
+      StorageManager.updateProgress(index);
+    }
+
+    function flipCard() {
+      isFlipped = !isFlipped;
+      document.getElementById('flashcardInner').classList.toggle('flipped');
+    }
+
+    function nextCard() {
+      loadCard(currentIndex + 1);
+    }
+
+    function prevCard() {
+      loadCard(currentIndex - 1);
+    }
+
+    function toggleMastered() {
+      const root = WordRoots[currentIndex];
+      StorageManager.markRootAsMastered(root.id);
+      loadCard(currentIndex);
+    }
+
+    // Keyboard controls
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') prevCard();
+      if (e.key === 'ArrowRight') nextCard();
+      if (e.key === ' ') { e.preventDefault(); flipCard(); }
+    });
+
+    // Load saved progress
+    const savedProgress = StorageManager.getProgress();
+    loadCard(savedProgress.currentRootIndex || 0);
+  </script>
+</body>
+</html>

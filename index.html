@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>成长心理学概念工坊</title>
+  
+  <meta name="description" content="基于发展心理学的科学框架，用30个核心概念解释人类从婴儿到老年心理发展的规律。">
+  <meta name="keywords" content="成长心理学,发展心理学,育儿,教育,心理发展">
+  <meta name="author" content="Gear">
+  <meta name="language" content="zh-CN">
+  <meta name="robots" content="index, follow">
+  
+  <meta property="og:title" content="成长心理学概念工坊">
+  <meta property="og:description" content="从关键期到青春期发展，系统掌握成长心理学核心框架">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="成长心理学概念工坊">
+  <meta property="og:locale" content="zh_CN">
+  
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="成长心理学概念工坊">
+  <meta name="twitter:description" content="从关键期到青春期发展，系统掌握成长心理学核心框架">
+  
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#FBBF24">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/minimal.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="/" class="nav-brand">🧠 成长心理学</a>
+      <div class="nav-links">
+        <a href="learn.html" class="nav-link">学习</a>
+        <a href="flashcard.html" class="nav-link">闪卡</a>
+        <a href="roots.html" class="nav-link">索引</a>
+        <a href="progress.html" class="nav-link">进度</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="hero">
+      <h1 class="hero-title">
+        <span>30个核心概念</span><br>
+        <span>理解人如何成长</span><br>
+        <span>的底层逻辑</span>
+      </h1>
+      <p class="hero-subtitle">从关键期到青春期发展，系统掌握成长心理学核心框架</p>
+      <div class="hero-cta">
+        <a href="learn.html" class="btn btn-primary btn-large">开始第一个概念 →</a>
+        <a href="flashcard.html" class="btn btn-secondary btn-large">闪卡复习</a>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="stat-grid">
+        <div class="stat-card card">
+          <div class="stat-value">30</div>
+          <div class="stat-label">核心概念</div>
+        </div>
+        <div class="stat-card card">
+          <div class="stat-value">0-100岁</div>
+          <div class="stat-label">覆盖全生命周期</div>
+        </div>
+        <div class="stat-card card">
+          <div class="stat-value">15分钟</div>
+          <div class="stat-label">每日学习</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="demo-section">
+        <h2>先看看这些概念</h2>
+        <div class="demo-grid" id="demoGrid"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer-tagline">🧠 理解成长，即是理解自己</p>
+    <p class="footer-desc">基于发展心理学的科学框架，用30个核心概念解释人类从婴儿到老年心理发展的规律。无论是育儿、教育还是自我成长，都能从中获得启发。</p>
+  </footer>
+
+  <script src="js/wordData.js"></script>
+  <script src="js/siteConfig.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    // Demo section - show first 5 concepts
+    const demoGrid = document.getElementById('demoGrid');
+    if (demoGrid && WordRoots) {
+      WordRoots.slice(0, 5).forEach(root => {
+        const card = document.createElement('div');
+        card.className = 'card demo-card';
+        card.innerHTML = `
+          <div class="demo-root">${root.root}</div>
+          <div class="demo-origin">${root.origin}</div>
+          <div class="demo-meaning">${root.meaning}</div>
+        `;
+        demoGrid.appendChild(card);
+      });
+    }
+  </script>
+</body>
+</html>

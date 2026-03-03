@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>进度 - 成长心理学概念工坊</title>
+  <meta name="description" content="查看你的学习进度">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/minimal.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🧠 成长心理学</a>
+      <div class="nav-links">
+        <a href="learn.html" class="nav-link">学习</a>
+        <a href="flashcard.html" class="nav-link">闪卡</a>
+        <a href="roots.html" class="nav-link">索引</a>
+        <a href="progress.html" class="nav-link active">进度</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <h1>学习进度</h1>
+    
+    <div class="progress-overview card">
+      <div class="progress-circle">
+        <svg viewBox="0 0 100 100">
+          <circle class="progress-bg" cx="50" cy="50" r="45"></circle>
+          <circle class="progress-fill" cx="50" cy="50" r="45" id="progressCircle"></circle>
+        </svg>
+        <div class="progress-percent" id="progressPercent">0%</div>
+      </div>
+      <div class="progress-stats">
+        <div class="stat-item">
+          <span class="stat-num" id="masteredCount">0</span>
+          <span class="stat-label">已掌握</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="totalCount">30</span>
+          <span class="stat-label">总概念数</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mastered-section">
+      <h2>已掌握列表</h2>
+      <div class="mastered-list" id="masteredList">
+        <p class="empty-state">还没有掌握任何概念，开始学习吧！</p>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <button class="btn btn-secondary" onclick="resetProgress()">🔄 重置进度</button>
+    </div>
+  </main>
+
+  <script src="js/wordData.js"></script>
+  <script src="js/siteConfig.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    function loadProgress() {
+      const progress = StorageManager.getProgress();
+      const masteredCount = progress.masteredRoots.length;
+      const totalCount = WordRoots.length;
+      const percentage = Math.round((masteredCount / totalCount) * 100);
+      
+      // Update circle
+      document.getElementById('progressPercent').textContent = `${percentage}%`;
+      const circle = document.getElementById('progressCircle');
+      const circumference = 2 * Math.PI * 45;
+      circle.style.strokeDasharray = circumference;
+      circle.style.strokeDashoffset = circumference - (percentage / 100) * circumference;
+      
+      // Update stats
+      document.getElementById('masteredCount').textContent = masteredCount;
+      document.getElementById('totalCount').textContent = totalCount;
+      
+      // Render mastered list
+      const masteredList = document.getElementById('masteredList');
+      const masteredRoots = WordRoots.filter(root => progress.masteredRoots.includes(root.id));
+      
+      if (masteredRoots.length === 0) {
+        masteredList.innerHTML = '<p class="empty-state">还没有掌握任何概念，开始学习吧！</p>';
+      } else {
+        masteredList.innerHTML = '';
+        masteredRoots.forEach(root => {
+          const item = document.createElement('div');
+          item.className = 'mastered-item';
+          item.innerHTML = `
+            <span class="mastered-name">${root.root}</span>
+            <span class="mastered-origin">${root.origin}</span>
+          `;
+          masteredList.appendChild(item);
+        });
+      }
+    }
+
+    function resetProgress() {
+      if (confirm('确定要重置所有学习进度吗？此操作无法撤销。')) {
+        localStorage.removeItem('progress');
+        loadProgress();
+        showFeedback('✓ 进度已重置', true);
+      }
+    }
+
+    function showFeedback(message, isSuccess) {
+      const toast = document.createElement('div');
+      toast.className = `feedback-toast ${isSuccess ? 'success' : 'error'}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    loadProgress();
+  </script>
+</body>
+</html>

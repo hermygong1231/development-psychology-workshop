@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>学习 - 成长心理学概念工坊</title>
+  <meta name="description" content="渐进式学习成长心理学30个核心概念">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/minimal.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🧠 成长心理学</a>
+      <div class="nav-links">
+        <a href="learn.html" class="nav-link active">学习</a>
+        <a href="flashcard.html" class="nav-link">闪卡</a>
+        <a href="roots.html" class="nav-link">索引</a>
+        <a href="progress.html" class="nav-link">进度</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="learn-header">
+      <div class="progress-info">
+        <span id="progressText">1 / 30</span>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 3.3%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="learn-card card" id="learnCard">
+      <div class="learn-origin" id="rootOrigin">-</div>
+      <h1 class="learn-root" id="rootName">-</h1>
+      <p class="learn-meaning" id="rootMeaning">-</p>
+      <div class="learn-description" id="rootDescription">-</div>
+      
+      <div class="examples-section">
+        <h3>📝 例子</h3>
+        <div id="examplesList"></div>
+      </div>
+
+      <div class="quiz-section">
+        <h3>❓ 试试看</h3>
+        <p class="quiz-question" id="quizQuestion">-</p>
+        <div class="quiz-options" id="quizOptions"></div>
+      </div>
+
+      <div class="learn-actions">
+        <button class="btn btn-secondary" onclick="prevRoot()">← 上一个</button>
+        <button class="btn btn-primary" id="masterBtn" onclick="toggleMastered()">✓ 标记已掌握</button>
+        <button class="btn btn-secondary" onclick="nextRoot()">下一个 →</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/wordData.js"></script>
+  <script src="js/siteConfig.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    let currentIndex = 0;
+
+    function loadRoot(index) {
+      if (index < 0 || index >= WordRoots.length) return;
+      currentIndex = index;
+      
+      const root = WordRoots[index];
+      
+      document.getElementById('rootOrigin').textContent = root.origin;
+      document.getElementById('rootName').textContent = root.root;
+      document.getElementById('rootMeaning').textContent = root.meaning;
+      document.getElementById('rootDescription').textContent = root.description;
+      
+      // Progress
+      const progress = ((index + 1) / WordRoots.length) * 100;
+      document.getElementById('progressText').textContent = `${index + 1} / ${WordRoots.length}`;
+      document.getElementById('progressFill').style.width = `${progress}%`;
+      
+      // Examples
+      const examplesList = document.getElementById('examplesList');
+      examplesList.innerHTML = '';
+      root.examples.forEach(ex => {
+        const exDiv = document.createElement('div');
+        exDiv.className = 'example-item';
+        exDiv.innerHTML = `<strong>${ex.word}</strong>: ${ex.meaning}`;
+        examplesList.appendChild(exDiv);
+      });
+      
+      // Quiz
+      const quizQuestion = document.getElementById('quizQuestion');
+      const quizOptions = document.getElementById('quizOptions');
+      quizQuestion.textContent = root.quiz.question;
+      quizOptions.innerHTML = '';
+      root.quiz.options.forEach((opt, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'quiz-option';
+        btn.textContent = opt;
+        btn.onclick = () => checkAnswer(i, root.quiz.correctAnswer);
+        quizOptions.appendChild(btn);
+      });
+      
+      // Mastered button
+      const progressData = StorageManager.getProgress();
+      const masterBtn = document.getElementById('masterBtn');
+      if (progressData.masteredRoots.includes(root.id)) {
+        masterBtn.textContent = '✓ 已掌握';
+        masterBtn.classList.add('mastered');
+      } else {
+        masterBtn.textContent = '✓ 标记已掌握';
+        masterBtn.classList.remove('mastered');
+      }
+      
+      StorageManager.updateProgress(index);
+    }
+
+    function nextRoot() {
+      if (currentIndex < WordRoots.length - 1) {
+        loadRoot(currentIndex + 1);
+      }
+    }
+
+    function prevRoot() {
+      if (currentIndex > 0) {
+        loadRoot(currentIndex - 1);
+      }
+    }
+
+    function toggleMastered() {
+      const root = WordRoots[currentIndex];
+      StorageManager.markRootAsMastered(root.id);
+      loadRoot(currentIndex);
+    }
+
+    function checkAnswer(selected, correct) {
+      const options = document.querySelectorAll('.quiz-option');
+      options.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === correct) btn.classList.add('correct');
+        else if (i === selected) btn.classList.add('wrong');
+      });
+      
+      const isCorrect = selected === correct;
+      showFeedback(isCorrect ? '✓ 回答正确！' : '✗ 回答错误', isCorrect);
+    }
+
+    function showFeedback(message, isSuccess) {
+      const toast = document.createElement('div');
+      toast.className = `feedback-toast ${isSuccess ? 'success' : 'error'}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Load saved progress
+    const savedProgress = StorageManager.getProgress();
+    loadRoot(savedProgress.currentRootIndex || 0);
+  </script>
+</body>
+</html>

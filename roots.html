@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>索引 - 成长心理学概念工坊</title>
+  <meta name="description" content="浏览成长心理学所有概念">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧠</text></svg>">
+  <link rel="stylesheet" href="css/minimal.css">
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">🧠 成长心理学</a>
+      <div class="nav-links">
+        <a href="learn.html" class="nav-link">学习</a>
+        <a href="flashcard.html" class="nav-link">闪卡</a>
+        <a href="roots.html" class="nav-link active">索引</a>
+        <a href="progress.html" class="nav-link">进度</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <div class="search-section">
+      <input type="text" class="search-input" id="searchInput" placeholder="搜索概念..." oninput="searchRoots(this.value)">
+      <select class="filter-select" id="filterSelect" onchange="filterByOrigin(this.value)">
+        <option value="all">全部</option>
+      </select>
+    </div>
+
+    <div class="roots-grid" id="rootsGrid"></div>
+  </main>
+
+  <script src="js/wordData.js"></script>
+  <script src="js/siteConfig.js"></script>
+  <script src="js/storage.js"></script>
+  <script>
+    function renderRoots(roots) {
+      const container = document.getElementById('rootsGrid');
+      container.innerHTML = '';
+      
+      const progress = StorageManager.getProgress();
+      const masteredIds = new Set(progress.masteredRoots);
+      
+      roots.forEach(root => {
+        const card = document.createElement('div');
+        card.className = 'card root-card';
+        if (masteredIds.has(root.id)) {
+          card.classList.add('mastered');
+        }
+        
+        card.innerHTML = `
+          <div class="root-card-header">
+            <span class="root-origin">${root.origin}</span>
+            ${masteredIds.has(root.id) ? '<span class="mastered-badge">✓ 已掌握</span>' : ''}
+          </div>
+          <div class="root-name">${root.root}</div>
+          <div class="root-meaning">${root.meaning}</div>
+        `;
+        
+        card.onclick = () => {
+          const progress = StorageManager.getProgress();
+          progress.currentRootIndex = WordRoots.findIndex(r => r.id === root.id);
+          StorageManager._saveProgress(progress);
+          window.location.href = 'learn.html';
+        };
+        
+        container.appendChild(card);
+      });
+    }
+
+    function searchRoots(query) {
+      if (!query) {
+        renderRoots(WordRoots);
+        return;
+      }
+      
+      const filtered = WordRoots.filter(root =>
+        root.root.toLowerCase().includes(query.toLowerCase()) ||
+        root.meaning.toLowerCase().includes(query.toLowerCase())
+      );
+      renderRoots(filtered);
+    }
+
+    function filterByOrigin(origin) {
+      if (origin === 'all') {
+        renderRoots(WordRoots);
+      } else {
+        const filtered = WordRoots.filter(root => root.origin === origin);
+        renderRoots(filtered);
+      }
+    }
+
+    // Initialize filter options
+    const origins = [...new Set(WordRoots.map(r => r.origin))];
+    const filterSelect = document.getElementById('filterSelect');
+    origins.forEach(origin => {
+      const option = document.createElement('option');
+      option.value = origin;
+      option.textContent = origin;
+      filterSelect.appendChild(option);
+    });
+
+    // Initial render
+    renderRoots(WordRoots);
+  </script>
+</body>
+</html>
